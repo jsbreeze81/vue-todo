@@ -2,11 +2,13 @@
   "name": "todo",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 8000",
     "build": "vite build",
     "preview": "vite preview --port 5050"
   },
   "dependencies": {
+    "axios": "^0.26.1",
+    "json-server": "^0.17.0",
     "vue": "^3.2.31"
   },
   "devDependencies": {
