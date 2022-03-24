@@ -2,116 +2,90 @@
   <div class="container">
     <h2>Todo List</h2>
     
-    <TodoSimpleFormVue
-      @add-todo="addTodo"
-    />
+    <TodoSimpleForm @add-todo="addTodo" />
 
     <TodoList
       :todos="todos"
       @delete-todo="deleteTodo"
-      @toggle-todo="toggleTodo"
+      @toggle-complete="toggleComplete"
     />
 
-    <hr>
-    <div class="d-flex justify-content-center">
-      <nav aria-label="Page navigation example mx-auto">
-        <ul class="pagination">
-          <li class="page-item">
-            <a 
-              class="page-link" 
-              @click="getTodo(currentPage-1)"
-              :disabled="currentPage != 1"
-            >Previous</a>
-          </li>
-          <li 
-            v-for="page in numberOfPages"
-            :key="page"
-            class="page-item"
-            :class="{active : page == currentPage}"
-          >
-            <a class="page-link" @click="getTodo(page)">{{page}}</a>
-          </li>
-          <li class="page-item">
-            <button class="page-link" 
-              @click="getTodo(currentPage+1)"
-              :disabled="currentPage != numberOfPages"
-            >Next</button>
-          </li>
-        </ul>
-      </nav>
-    </div>
+    <Pagination
+      :currentPage="currentPage"
+      :numberOfPages="numberOfPages"
+      @get-todo="getTodo"
+    />
   </div>
 </template>
 
 <script>
-import { ref, computed } from 'vue';
-import TodoSimpleFormVue from './components/TodoSimpleForm.vue';
+import {ref, computed} from 'vue';
+import TodoSimpleForm from './components/TodoSimpleForm.vue';
 import TodoList from './components/TodoList.vue';
 import axios from 'axios';
+import Pagination from './components/Pagination.vue';
 
 export default {
   components:{
-    TodoSimpleFormVue,
-    TodoList
+    TodoSimpleForm,
+    TodoList,
+    Pagination
   },
   setup(){
     const todos = ref([]);
     const numberOfTodos = ref(0);
-    const limit = 5;
+    const limit = 5
     const currentPage = ref(1);
 
     const numberOfPages = computed(() => {
       return Math.ceil(numberOfTodos.value/limit);
     })
 
-    const getTodo = async (page = currentPage.value) => {
+    const getTodo = async(page = currentPage.value) => {
       currentPage.value = page;
       try{
-        const res = await axios.get(`http://localhost:3000/todos?_page=${page}&_limit=${limit}`);
-        numberOfTodos.value = res.headers['x-total-count'];
+        const res = await axios.get(`http://localhost:3000/todos?_sort=id&_order=desc&_page=${page}&_limit=${limit}`)
         todos.value = res.data;
+        numberOfTodos.value = res.headers['x-total-count'];
       }catch(err){
-        console.log('error');
+        console.log(err);
       }
     }
 
     getTodo();
-
+    
     const addTodo = async (todo) => {
-      // db에 저장
       try{
-        const res = await axios.post('http://localhost:3000/todos',{
-          subject: todo.subject,
-          completed: todo.completed
+        await axios.post('http://localhost:3000/todos',{
+          subject:todo.subject,
+          completed:todo.completed
         })
         getTodo(1);
-        todos.value.push(res.data)
       }catch(err){
-        console.log('error');
+        console.log(err);
       }
+      todos.value.push(todo);
     }
 
     const deleteTodo = async (index) => {
-      // todos.value.splice(index,1);
-      const id = todos.value[index].id;
+      const id = todos.value[index].id
       try{
         await axios.delete('http://localhost:3000/todos/'+id);
-        todos.value.splice(index,1)
+        todos.value.splice(index,1);
       }catch(err){
-        console.log('error');
+        console.log(err);
       }
     }
 
-    const toggleTodo = async (index) => {
-      // todos.value[index].completed = !todos.value[index].completed
+    const toggleComplete = async (index) => {
       const id = todos.value[index].id;
       try{
         await axios.patch('http://localhost:3000/todos/'+id,{
           completed:!todos.value[index].completed
         });
-        todos.value[index].completed = !todos.value[index].completed;
+        todos.value[index].completed = !todos.value[index].completed
       }catch(err){
-        console.log('error');
+        console.log(err);
       }
     }
 
@@ -121,7 +95,7 @@ export default {
       currentPage,
       addTodo,
       deleteTodo,
-      toggleTodo,
+      toggleComplete,
       getTodo
     }
   }
@@ -129,4 +103,5 @@ export default {
 </script>
 
 <style scoped>
+  
 </style>
