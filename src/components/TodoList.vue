@@ -1,34 +1,27 @@
 <template>
-  <div 
-    class="card mt-2"
+  <div class="card mt-2"
     v-for="(todo, index) in todos"
     :key="todo.id"
   >
-    <div class="card-body d-flex align-items-center p-2">
-      <div class="form-check">
+    <div class="card-body p-2 d-flex align-items-center">
+      <div class="form-check flex-fill mr-2">
         <input 
+          :id="todo.id" 
           type="checkbox" 
           class="form-check-input"
-          :value="todo.completed"
-          :id="todo.id"
-          @change="toggleCheck(index)"
+          :checked="todo.completed"
+          @change="toggleComplete(index)"
         >
         <label 
-          class="form-check-label"
-          :class="{completed : todo.completed}"
           :for="todo.id" 
-        >
-          {{todo.subject}}
-        </label>
+          class="form-check-label"
+          :class="{'completed' : todo.completed}"
+        >{{todo.subject}}</label>
       </div>
-      <div class="ms-auto">
-        <button 
-          class="btn btn-danger btn-sm"
-          @click="deleteTodo(index)"
-        >
-          DELETE
-        </button>
-      </div>
+      <button 
+        class="btn btn-danger btn-sm"
+        @click="deleteTodo(index)"
+      >DELETE</button>
     </div>
   </div>
 </template>
@@ -41,28 +34,25 @@ export default {
       required:true
     }
   },
-  emits:['delete-todo','toggle-todo'],
+  emits:['delete-todo','toggle-complete'],
   setup(props, {emit}){
     const deleteTodo = (index) => {
       emit('delete-todo',index)
     }
-
-    const toggleCheck = (index) => {
-      emit('toggle-todo',index)
+    const toggleComplete = (index) => {
+      emit('toggle-complete',index)
     }
-
     return{
       deleteTodo,
-      toggleCheck
+      toggleComplete
     }
   }
 }
 </script>
 
 <style scoped>
-
-.completed{
-  color:gray;
-  text-decoration: line-through;
-}
+  .completed{
+    color:gray;
+    text-decoration: line-through;
+  }
 </style>
